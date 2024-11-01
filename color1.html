@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Color Ramp XML Generator</title>
+<style>
+body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+h1 {
+    color: #2c3e50;
+}
+.container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+}
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+button:hover {
+    background-color: #45a049;
+}
+</style>
+</head>
+<body>
+
+<h1>Color Ramp XML Generator</h1>
+
+<div class="container">
+    <label for="colorInput">Enter Hex Color Codes (comma-separated):</label>
+    <input type="text" id="colorInput" value="#000000,#FFFFFF,#FF0000">
+
+    <label for="rampName">Ramp Name:</label>
+    <input type="text" id="rampName" value="MyColorRamp">
+
+    <label for="rampTags">Ramp Tags (comma-separated):</label>
+    <input type="text" id="rampTags" value="custom,ramp">
+
+    <button onclick="generateXML()">Generate XML</button>
+</div>
+
+<script>
+function generateXML() {
+    const hexColors = document.getElementById('colorInput').value.split(',');
+    const rampName = document.getElementById('rampName').value;
+    const rampTags = document.getElementById('rampTags').value;
+
+    let xmlString = '<qgis_style version="2">\n<symbols/>\n<colorramps>\n';
+    xmlString += `<colorramp type="preset" name="${rampName}" tags="${rampTags}">\n`;
+    xmlString += '<Option type="Map">\n';
+
+    hexColors.forEach((hexColor, index) => {
+        const rgb = hexToRgb(hexColor.trim());
+        if (rgb) {
+            const rgba = rgb.r + ',' + rgb.g + ',' + rgb.b + ',255';
+            xmlString += `<Option type="QString" name="preset_color_${index}" value="${rgba}"/>\n`;
+            xmlString += `<Option type="QString" name="preset_color_name_${index}" value="${index}. Color ${index}"/>\n`;
+        }
+    });
+
+    xmlString += '<Option type="QString" name="rampType" value="preset"/>\n';
+    xmlString += '</Option>\n';
+    xmlString += '</colorramp>\n';
+    xmlString += '</colorramps>\n<textformats/>\n<labelsettings/>\n<legendpatchshapes/>\n<symbols3d/>\n</qgis_style>';
+
+    downloadXML(xmlString, rampName + '.xml');
+}
+
+function hexToRgb(hex) {
+    const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
+function downloadXML(xmlString, filename) {
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/xml;charset=utf-8,' + encodeURIComponent(xmlString));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+</script>
+
+</body>
+</html>
