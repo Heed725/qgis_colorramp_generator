@@ -2,7 +2,7 @@
 
 The QGIS Color Ramp Generator is a web-based tool designed to help GIS professionals and cartographers create custom color ramps for use in QGIS.
 
-![Version](https://img.shields.io/badge/version-2.0-blue.svg)
+![Version](https://img.shields.io/badge/version-3.0-blue.svg)
 
 ---
 
