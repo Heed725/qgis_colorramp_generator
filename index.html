@@ -1,217 +1,186 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>QGIS Color Ramp XML Generator</title>
-<style>
-body {
-    font-family: sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    background-color: #f4f4f4;
-    color: #333;
-}
-h1 {
-    color: #2c3e50;
-}
-.container {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-    width: 80%;
-    max-width: 800px;
-}
-.ramp-group {
-    position: relative;
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 5px;
-}
-label {
-    display: block;
-    margin-bottom: 5px;
-    color: #555;
-}
-input[type="text"] {
-    width: calc(100% - 22px);
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-button {
-    background-color: #4CAF50;
-    border: none;
-    color: white;
-    padding: 12px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-right: 10px;
-}
-button:hover {
-    background-color: #45a049;
-}
-.error-message {
-    color: red;
-    margin-top: -10px;
-    margin-bottom: 10px;
-    min-height: 1.2em;
-}
-.delete-button {
-    background-color: #FF0000;
-    margin-top:10px;
-}
-.delete-button:hover {
-    background-color: #cc0000;
-}
-.color-viewer {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    margin-right: 5px;
-    border: 1px solid #ccc;
-    vertical-align: middle;
-    margin-bottom: 15px;
-}
-</style>
+    <title>QGIS Color Ramp XML Generator</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            width: 80%;
+            max-width: 800px;
+        }
+        .ramp-group {
+            position: relative;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error-message {
+            color: red;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            min-height: 1.2em;
+        }
+        .delete-button {
+            background-color: #FF0000;
+            margin-top: 10px;
+        }
+        .delete-button:hover {
+            background-color: #cc0000;
+        }
+        .color-viewer {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border: 1px solid #ccc;
+            vertical-align: middle;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
 <h1>QGIS Color Ramp XML Generator</h1>
 <div class="container">
-    <div id="ramp-containers">
-        <!-- Ramp groups will be added here dynamically -->
-    </div>
+    <label for="xmlFileName">General XML File Name:</label>
+    <input type="text" id="xmlFileName" placeholder="Enter file name (e.g. MyColorRamps)" />
+
+    <div id="ramp-containers"></div>
+
     <button onclick="addRamp()">Add Ramp</button>
     <button onclick="generateXML()">Generate XML</button>
 </div>
 
 <script>
-let rampCounter = 0; // Counter for generating unique IDs
+let rampCounter = 0;
 
 function addRamp() {
     const container = document.getElementById('ramp-containers');
-    const existingRamps = container.querySelectorAll('.ramp-group').length;
-
-    if (existingRamps >= 10) {
+    if (container.querySelectorAll('.ramp-group').length >= 10) {
         alert("Maximum 10 ramps allowed!");
         return;
     }
 
-    rampCounter++; // Increment for unique ID
-    const newRampId = `ramp-group-${rampCounter}`; // Use hyphen for clarity if desired
-    const currentRampIndex = rampCounter; // Index for elements within this ramp
+    rampCounter++;
+    const newRampId = `ramp-group-${rampCounter}`;
+    const currentRampIndex = rampCounter;
 
-    // --- *** CORRECTED PART: Use DOM Manipulation *** ---
-
-    // 1. Create the main container div for the new ramp
     const newRampElement = document.createElement('div');
     newRampElement.className = 'ramp-group';
     newRampElement.id = newRampId;
 
-    // 2. Create and configure elements inside the new ramp div
-
-    // Color Input Label
     const colorLabel = document.createElement('label');
     colorLabel.htmlFor = `colorInput${currentRampIndex}`;
     colorLabel.textContent = 'Enter Hex Color Codes (comma-separated):';
     newRampElement.appendChild(colorLabel);
 
-    // Color Input
     const colorInput = document.createElement('input');
     colorInput.type = 'text';
     colorInput.id = `colorInput${currentRampIndex}`;
-    colorInput.value = '#000000,#FFFFFF,#FF0000'; // Default value for new ramps
-    colorInput.oninput = () => updateColorViewers(newRampId); // Use arrow function or bind
+    colorInput.value = '#000000,#FFFFFF,#FF0000';
+    colorInput.oninput = () => updateColorViewers(newRampId);
     newRampElement.appendChild(colorInput);
 
-    // Color Viewers Div
     const colorViewersDiv = document.createElement('div');
     colorViewersDiv.id = `color-viewers${currentRampIndex}`;
     newRampElement.appendChild(colorViewersDiv);
 
-    // Error Message Div
     const errorDiv = document.createElement('div');
     errorDiv.id = `error-message${currentRampIndex}`;
     errorDiv.className = 'error-message';
     newRampElement.appendChild(errorDiv);
 
-    // Ramp Name Label
     const nameLabel = document.createElement('label');
     nameLabel.htmlFor = `rampName${currentRampIndex}`;
     nameLabel.textContent = 'Ramp Name:';
     newRampElement.appendChild(nameLabel);
 
-    // Ramp Name Input
     const nameInput = document.createElement('input');
     nameInput.type = 'text';
     nameInput.id = `rampName${currentRampIndex}`;
     nameInput.value = `MyColorRamp${currentRampIndex}`;
     newRampElement.appendChild(nameInput);
 
-    // Ramp Tags Label
     const tagsLabel = document.createElement('label');
     tagsLabel.htmlFor = `rampTags${currentRampIndex}`;
     tagsLabel.textContent = 'Ramp Tags (comma-separated):';
     newRampElement.appendChild(tagsLabel);
 
-    // Ramp Tags Input
     const tagsInput = document.createElement('input');
     tagsInput.type = 'text';
     tagsInput.id = `rampTags${currentRampIndex}`;
     tagsInput.value = `custom,ramp${currentRampIndex}`;
     newRampElement.appendChild(tagsInput);
 
-    // Delete Button
     const deleteButton = document.createElement('button');
     deleteButton.className = 'delete-button';
     deleteButton.textContent = 'Delete';
-    deleteButton.onclick = () => deleteRamp(newRampId); // Use arrow function or bind
+    deleteButton.onclick = () => deleteRamp(newRampId);
     newRampElement.appendChild(deleteButton);
 
-    // 3. Append the fully constructed new ramp element to the main container
     container.appendChild(newRampElement);
-
-    // 4. Initialize color viewers for the newly added ramp
     updateColorViewers(newRampId);
 }
 
-
 function deleteRamp(rampId) {
     const rampGroup = document.getElementById(rampId);
-    if (rampGroup) {
-        rampGroup.remove();
-    }
+    if (rampGroup) rampGroup.remove();
 }
 
 function updateColorViewers(rampId) {
-    // Extract the counter number from the rampId (e.g., 'ramp-group-5' -> '5')
-    const rampIndexMatch = rampId.match(/-(\d+)$/);
-    if (!rampIndexMatch) return; // Should not happen with new IDs
-    const rampIndex = rampIndexMatch[1];
-
+    const rampIndex = rampId.match(/-(\d+)$/)[1];
     const colorInputElement = document.getElementById(`colorInput${rampIndex}`);
     const colorViewersContainer = document.getElementById(`color-viewers${rampIndex}`);
     const errorMessageElement = document.getElementById(`error-message${rampIndex}`);
 
-    if (!colorInputElement || !colorViewersContainer || !errorMessageElement) {
-        console.error("Could not find elements for ramp index:", rampIndex);
-        return;
-    }
-
-    const hexColorsInput = colorInputElement.value;
-    const hexColors = hexColorsInput.split(',').map(c => c.trim()).filter(c => c);
-
+    const hexColors = colorInputElement.value.split(',').map(c => c.trim()).filter(c => c);
     let viewersHTML = '';
     let hasError = false;
     let errorMessages = [];
@@ -229,14 +198,8 @@ function updateColorViewers(rampId) {
     });
 
     colorViewersContainer.innerHTML = viewersHTML;
-
-    if (hasError) {
-         errorMessageElement.textContent = `Invalid hex code(s): ${errorMessages.join(', ')}`;
-    } else {
-         errorMessageElement.textContent = "";
-    }
+    errorMessageElement.textContent = hasError ? `Invalid hex code(s): ${errorMessages.join(', ')}` : "";
 }
-
 
 function generateXML() {
     let xmlString = '<qgis_style version="2">\n<symbols/>\n<colorramps>\n';
@@ -249,40 +212,24 @@ function generateXML() {
     }
 
     rampGroups.forEach(rampGroup => {
-        const rampId = rampGroup.id;
-        const rampIndexMatch = rampId.match(/-(\d+)$/);
-        if (!rampIndexMatch) return; // Skip if ID format is wrong
-        const rampIndex = rampIndexMatch[1];
-
+        const rampIndex = rampGroup.id.match(/-(\d+)$/)[1];
         const colorInputElement = document.getElementById(`colorInput${rampIndex}`);
         const rampNameElement = document.getElementById(`rampName${rampIndex}`);
         const rampTagsElement = document.getElementById(`rampTags${rampIndex}`);
         const errorMessageElement = document.getElementById(`error-message${rampIndex}`);
 
-        // Basic check for element existence
-        if (!colorInputElement || !rampNameElement || !rampTagsElement || !errorMessageElement) {
-            console.error("Skipping ramp due to missing elements:", rampId);
-            overallError = true;
-            // Ensure some feedback to the user about which ramp failed
-            if(errorMessageElement) errorMessageElement.textContent = "Internal error: Could not find all elements for this ramp.";
-            else alert(`Internal error finding elements for ramp ${rampId}`);
-            return;
-        }
-
         const hexColorsRaw = colorInputElement.value.split(',');
-        const rampName = rampNameElement.value.trim() || `UnnamedRamp${rampIndex}`; // Default name if empty
+        const rampName = rampNameElement.value.trim() || `UnnamedRamp${rampIndex}`;
         const rampTags = rampTagsElement.value.trim();
         let currentRampHasError = false;
         let rampXmlContent = '';
 
-        rampXmlContent += `<colorramp type="preset" name="${rampName}" tags="${rampTags}">\n`;
-        rampXmlContent += '  <Option type="Map">\n';
-
-        const validColors = []; // Store valid colors for this ramp
+        rampXmlContent += `<colorramp type="preset" name="${rampName}" tags="${rampTags}">\n  <Option type="Map">\n`;
+        const validColors = [];
 
         hexColorsRaw.forEach((hexColor) => {
             const trimmedHex = hexColor.trim();
-            if (!trimmedHex) return; // Skip empty entries
+            if (!trimmedHex) return;
 
             const rgb = hexToRgb(trimmedHex);
             if (!rgb) {
@@ -290,70 +237,56 @@ function generateXML() {
                 currentRampHasError = true;
                 overallError = true;
             } else {
-                 validColors.push({ hex: trimmedHex, rgb: rgb });
+                validColors.push({ hex: trimmedHex, rgb });
             }
         });
 
-        // If errors were found IN THIS RAMP, stop processing it for XML
-        if (currentRampHasError) {
-            errorMessageElement.textContent = `Error in hex codes. Fix before generating XML.`;
-            return; // Skip adding this ramp to the final XML
+        if (currentRampHasError || validColors.length === 0) {
+            errorMessageElement.textContent = currentRampHasError
+                ? `Error in hex codes. Fix before generating XML.`
+                : `No valid colors entered for this ramp.`;
+            overallError = true;
+            return;
         }
 
-        // Check if there are actually any valid colors after parsing
-        if (validColors.length === 0) {
-             errorMessageElement.textContent = `No valid colors entered for this ramp.`;
-             overallError = true;
-             return; // Skip this ramp
-        }
-
-        // Clear error message if this ramp is now valid
         errorMessageElement.textContent = "";
 
-        // Generate XML options only for valid colors
         validColors.forEach((colorData, index) => {
-             const rgba = `${colorData.rgb.r},${colorData.rgb.g},${colorData.rgb.b},255`;
-             rampXmlContent += `    <Option type="QString" name="preset_color_${index}" value="${rgba}"/>\n`;
-             rampXmlContent += `    <Option type="QString" name="preset_color_name_${index}" value="${colorData.hex} (Stop ${index + 1})"/>\n`;
+            const rgba = `${colorData.rgb.r},${colorData.rgb.g},${colorData.rgb.b},255`;
+            rampXmlContent += `    <Option type="QString" name="preset_color_${index}" value="${rgba}"/>\n`;
+            rampXmlContent += `    <Option type="QString" name="preset_color_name_${index}" value="${colorData.hex} (Stop ${index + 1})"/>\n`;
         });
 
-
-        rampXmlContent += '    <Option type="QString" name="rampType" value="preset"/>\n';
-        rampXmlContent += '  </Option>\n';
-        rampXmlContent += '</colorramp>\n';
-
-        xmlString += rampXmlContent; // Add this valid ramp's XML
+        rampXmlContent += '    <Option type="QString" name="rampType" value="preset"/>\n  </Option>\n</colorramp>\n';
+        xmlString += rampXmlContent;
     });
 
     if (overallError) {
-        alert("XML generation failed. Please fix the errors indicated in the invalid ramps.");
+        alert("XML generation failed. Please fix the errors indicated.");
         return;
     }
 
     xmlString += '</colorramps>\n<textformats/>\n<labelsettings/>\n<legendpatchshapes/>\n<symbols3d/>\n</qgis_style>';
-    downloadXML(xmlString, 'QGIS_ColorRamps.xml');
+
+    const fileNameInput = document.getElementById('xmlFileName').value.trim();
+    const finalFileName = fileNameInput ? `${fileNameInput}.xml` : 'QGIS_ColorRamps.xml';
+    downloadXML(xmlString, finalFileName);
 }
 
 function hexToRgb(hex) {
-    const hexRegex = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
-    const match = hex.match(hexRegex);
-    if (!match) {
-       return null;
-    }
+    const match = hex.match(/^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/);
+    if (!match) return null;
     let hexProcessed = match[1];
-
     if (hexProcessed.length === 3) {
-        hexProcessed = hexProcessed.split('').map(char => char + char).join('');
+        hexProcessed = hexProcessed.split('').map(c => c + c).join('');
     }
-
     const bigint = parseInt(hexProcessed, 16);
-    const r = (bigint >> 16) & 255;
-    const g = (bigint >> 8) & 255;
-    const b = bigint & 255;
-
-    return { r, g, b };
+    return {
+        r: (bigint >> 16) & 255,
+        g: (bigint >> 8) & 255,
+        b: bigint & 255
+    };
 }
-
 
 function downloadXML(xmlString, filename) {
     const blob = new Blob([xmlString], { type: 'text/xml;charset=utf-8' });
@@ -367,12 +300,6 @@ function downloadXML(xmlString, filename) {
     document.body.removeChild(element);
     URL.revokeObjectURL(url);
 }
-
-// Optional: Add the first ramp automatically on page load
-// document.addEventListener('DOMContentLoaded', () => {
-//     addRamp();
-// });
-
 </script>
 </body>
 </html>
