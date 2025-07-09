@@ -2,7 +2,7 @@
 
 ![Version](https://img.shields.io/badge/version-5.0-blue.svg)
 
-The **QGIS Color Ramp Generator** is a web-based tool designed to help GIS professionals, cartographers, and data visualization specialists easily create and export custom color ramps for use in [QGIS](https://qgis.org). It supports creating multiple color ramps with visual previews, tagging, validation, and exporting to the QGIS-compatible `.xml` style format.
+The **QGIS Color Ramp Generator** is a web-based tool designed to help GIS professionals, cartographers, and data visualization specialists easily create and export custom color ramps for use in [QGIS](https://qgis.org). It supports creating multiple color ramps with visual previews, tagging, validation, and exporting to the QGIS-compatible `.xml` and `.GPL` style format.
 
 ---
 
@@ -31,7 +31,7 @@ The **QGIS Color Ramp Generator** is a web-based tool designed to help GIS profe
 3. Click **"Add Ramp"** to create a new color ramp.
 4. Input comma-separated hex color codes (e.g. `#FF0000, #00FF00, #0000FF`).
 5. Assign each ramp a name and tags.
-6. Click **"Generate XML"** to download your file.
+6. Click **"Generate XML"** or **"Generate GPL"**  to download your file.
 
 > 💡 Tip: Valid hex codes must be 3 or 6 digits, beginning with `#`. Invalid codes will be flagged visually.
 
